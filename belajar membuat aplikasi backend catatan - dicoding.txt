@@ -1,0 +1,637 @@
+MEMBUAT APLIKASI CATATAN - PROJECT DICODING
+
+* MENYIAPKAN PROJECT 
+1. buat folder bernama aplikasi notes project backend dicoding, lalu buka folder di vscode dan buka terminal dengan mengetik perintah : npm init --y (jika sudah maka pastikan terdapat file package.json)
+2. siapkan dua tools tambahan untuk memudahkan proses pengembangan web server
+* tools yang pertama yaitu Nodemon :
+- ketik di terminal untuk install : npm install nodemon --save-dev
+- untuk mencoba nodemon, buat file dengan nama server.js dan ketik code : console.log('Hallo kita akan membuat RESTful API');
+- Kemudian di dalam package.json, buat npm runner script baru untuk menjalankan server.js menggunakan nodemon, ubah code script menjadi :
+"scripts": {
+"start": "nodemon server.js"
+},
+- lalu jalankan server : npm run start
+* Tools yang kedua adalah ESLint
+- ketik di terminal untuk install : npm install eslint --save-dev
+- konfig dengan perintah : npx eslint --init
+Kemudian Anda akan diberikan beberapa pertanyaan, silakan jawab pertanyaan yang ada dengan jawaban berikut:
+
+How would you like to use ESLint? -> To check, find problems, and enforce code style.
+What type of modules does your project use? -> CommonJS (require/exports).
+Which framework did you use? -> None of these. 
+Does your project use TypeScript? -> N.
+Where does your code run? -> Node (pilih menggunakan spasi).
+How would you like to define a style for your project? -> Use a popular style guide.
+Which style guide do you want to follow? -> (Anda bebas memilih, sebagai contoh pilih AirBnB).
+What format do you want your config file to be in? -> JSON.
+Would you like to …… (seluruh pertanyaan selanjutnya) -> Y.
+
+Setelah menjawab seluruh pertanyaan yang diberikan, maka akan terbentuk berkas konfigurasi eslint dengan nama .eslintrc.json.
+3. tambahkan npm runner berikut di dalam berkas package.json: 
+"scripts": {
+  "start": "nodemon server.js",
+  "lint": "eslint ./"
+},
+4. Jalankan perintah npm run lint pada Terminal proyek, lalu perhatikan hasilnya.
+- Pada Terminal, kita dapat melihat terdapat eror dan warning (bila Anda menggunakan AirBnB code style). Seperti inilah fungsi dari ESLint, ia akan memberi tahu alasan dan letak kesalahan dalam penulisan kode. Tiap eror yang tampil, itu menandakan adanya penulisan kode yang tidak sesuai dengan style guide yang sudah kita tetapkan. Melalui ESLint ini, kita dapat mencari letak kesalahan secara akurat dan cepat.
+- pasang ekstensi ESLint untuk Visual Studio Code
+- Sekarang, mari kita kembali ke berkas server.js, di sana Anda akan melihat tanda kuning pada kode console.
+Untuk pengguna Windows, ekstensi ESLint belum sepenuhnya diaktifkan. Anda perlu mengizinkan ekstensi ESLint berjalan melalui icon ‘Lampu’ yang muncul ketika Anda mengarahkan kursor ke kode console.
+Tekan ikon lampu tersebut, kemudian pilih opsi ESLint: Manage Library Execution.
+Catatan: Jika Manage Library Execution tidak muncul pada VSCode Anda, itu berarti ESLint extensions sudah dapat digunakan. Anda bisa abaikan langkah tersebut.
+Pilih “Allow Everywhere” pada pop-up yang muncul. Kemudian, tutup dan buka ulang proyek menggunakan VSCode.
+
+Kini ekstensi ESLint sudah berjalan dengan normal.
+Penggunaan console dianggap sebuah warning ketika Anda menerapkan AirBnB code style. ESLint membantu menyoroti hal tersebut.
+
+Agar sinkron dengan gaya penulisan di ESLint, Anda bisa mengatur indentasi dan line spacing di VSCode sesuai dengan style guide yang digunakan pada ESLint. Pengaturan tersebut berada di bottom bar VSCode.
+
+* LANGKAH AWAL : STRUKTUR PROJECT
+1. membuat folder dan 4 file :
+Apa saja berkas dan kode yang dituliskan di dalamnya? Mari kita rincikan.
+
+server.js : Memuat kode untuk membuat, mengonfigurasi, dan menjalankan server HTTP menggunakan Hapi.
+routes.js : Memuat kode konfigurasi routing server seperti menentukan path, method, dan handler yang digunakan.
+handler.js : Memuat seluruh fungsi-fungsi handler yang digunakan pada berkas routes.
+notes.js : Memuat data notes yang disimpan dalam bentuk array objek.
+Semua berkas JavaScript yang kita buat akan disimpan di dalam folder src. 
+Untuk berkas server.js, Anda tidak perlu membuat baru, cukup pindahkan berkas lama ke dalam folder src ya.
+Karena berkas server.js sekarang berada di dalam folder src, jangan lupa ubah alamat berkas tersebut pada npm runner script di berkas package.json. Silakan buka berkas tersebut dan sesuaikan nilai di dalam scripts menjadi seperti ini:
+"scripts": {
+  "start": "nodemon ./src/server.js",
+  "lint": "eslint ./src"
+}, 
+
+* MEMBUAT HTTP SERVER 
+1. pasang package hapi dengan mengeksekusi perintah ini di terminal : npm install @hapi/hapi
+2. Lanjut, buka berkas server.js dan ganti kode yang ada dengan kode dalam membuat server menggunakan Hapi seperti pada latihan sebelumnya, menjadi sprti :
+const Hapi = require('@hapi/hapi');
+ 
+const init = async () => {
+  const server = Hapi.server({
+    port: 5000,
+    host: 'localhost',
+  });
+ 
+  await server.start();
+  console.log(`Server berjalan pada ${server.info.uri}`);
+};
+ 
+init();
+3. Silakan simpan perubahan kode pada berkas server.js, lalu jalankan server dengan nodemon melalui perintah npm run start
+4. Silakan buka browser dan coba akses url http://localhost:5000. Jika pada browser tampak seperti ini (error 404 not found) itu artinya sudah berhasil membuat HTTP
+5. Sampai di sini Anda sudah bisa menghubungkan alamat localhost:5000 (web server) dengan aplikasi client (http://notesapp-v1.dicodingacademy.com/). Silakan pilih “Change URL”.
+6. Lalu, isi dengan host beserta port dari web server yang Anda buat. Contohnya “localhost:5000”
+7. Meskipun sudah terhubung, tapi halaman masih menampilkan “Error displaying notes! Make sure you have done with the back-end or correct url.” Hal itu wajar karena kita belum melakukan apa pun terhadap web server yang kita buat.
+8. Jika Anda menggunakan ESLint, ada satu hal yang perlu diperhatikan. Bila ada warning atau error yang diberikan oleh ESLint namun hal itu tidak Anda setujui atau ingin Anda hiraukan, maka Anda bisa menonaktifkan warning atau eror tersebut.
+Contohnya, bila Anda menggunakan code style AirBnB, maka penggunaan console akan dianggap warning.
+9. Anda bisa menonaktifkan aturan no-console pada berkas .eslintrc.json dengan menambahkan properti no-console dengan nilai off pada rules :
+{
+    "env": {
+        "commonjs": true,
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "airbnb-base"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "rules": {
+        "no-console": "off"
+    }
+}
+10. Dengan begitu, warning dari ESLint akan hilang untuk penggunaan console.
+
+* MENYIMPAN CATATAN (kriteria pertama)
+1. Silakan buka berkas routes.js dan tuliskan kode route pertama kita sesuai dengan ketentuan :
+const routes = [
+ {
+   method: 'POST',
+   path: '/notes',
+   handler: () => {},
+ },
+];
+ 
+module.exports = routes;
+2. Sebelum menuliskan fungsi handler, mari kita buat dulu array untuk menampung objek catatan pada berkas notes.js. Tulislah kode berikut:
+const notes = [];
+ 
+module.exports = notes;
+3. Lanjut kita buat fungsi handler untuk route ini. Silakan buka berkas handler.js dan buat fungsi dengan nama “addNoteHandler” :
+const addNoteHandler = (request, h) => {
+ 
+};
+Masih ingatkan bahwa fungsi handler pada Hapi memiliki dua parameters? Jadi, jangan lupa untuk menambahkan parameter tersebut setiap kali membuat fungsi handler.
+4. Lalu untuk mengekspor fungsi handler ini, kita gunakan objek literals yah. Ini bertujuan untuk memudahkan ekspor lebih dari satu nilai pada satu berkas JavaScript. ubah code tsb menjadi :
+const addNoteHandler = (request, h) => {
+ 
+};
+ 
+module.exports = { addNoteHandler }; //tambah ini
+5. Langkah selanjutnya, mari kita tuliskan logika untuk menyimpan catatan dari client ke dalam array notes.
+Client mengirim data catatan (title, tags, dan body) yang akan disimpan dalam bentuk JSON melalui body request. Masih ingatkan cara mendapatkan body request di Hapi? Yap! Menggunakan properti request.payload. Yuk mari kita ambil datanya :
+const addNoteHandler = (request, h) => {
+  const { title, tags, body } = request.payload; //tambah ini
+};
+Selain itu, objek notes yang perlu kita simpan harus memiliki struktur seperti ini:
+{
+  id: string,
+  title: string,
+  createdAt: string,
+  updatedAt: string,
+  tags: array of string,
+  body: string,
+},
+Kita hanya mendapatkan nilai title, tags, dan body dari client, itu berarti sisanya kita perlu olah sendiri. Mari kita pikirkan dari properti id dulu.
+
+Kriteria menyebutkan, properti id merupakan string dan harus unik, kita akan menggunakan bantuan library pihak ketiga untuk menghasilkan nilainya. nanoid merupakan salah satu library yang populer untuk menangani ini. 
+6. Jadi, silakan pasang library tersebut dengan perintah : npm install nanoid@3
+Untuk menggunakannya cukup mudah, kita hanya perlu memanggil method nanoid() dan memberikan parameter number yang merupakan ukuran dari string-nya :
+const addNoteHandler = (request, h) => {
+  const { title, tags, body } = request.payload;
+  const id = nanoid(16); //tambah ini
+};
+Jangan lupa untuk import nanoid dari package-nya :
+const { nanoid } = require('nanoid'); //tambah ini di line paling atas
+ 
+const addNoteHandler = (request, h) => {
+const { title, tags, body } = request.payload;
+ 
+const id = nanoid(16);
+};
+7. Selanjutnya properti createdAt dan updatedAt. Karena kasus sekarang adalah menambahkan catatan baru, maka nilai kedua properti tersebut seharusnya sama. Jadi, kita bisa secara mudah memberikan nilai new Date().toISOString();
+const addNoteHandler = (request, h) => {
+  const { title, tags, body } = request.payload;
+ 
+  const id = nanoid(16);
+  const createdAt = new Date().toISOString();
+  const updatedAt = createdAt;
+};
+8. Sekarang, saatnya kita masukan nilai-nilai tersebut ke dalam array notes menggunakan method push() :
+const addNoteHandler = (request, h) => {
+  const { title, tags, body } = request.payload;
+  const id = nanoid(16);
+  const createdAt = new Date().toISOString();
+  const updatedAt = createdAt;
+ 
+  const newNote = {
+    title, tags, body, id, createdAt, updatedAt,
+  };
+ 
+  notes.push(newNote);
+};
+9. Jangan lupa impor array notes pada berkas notes.js :
+const { nanoid } = require('nanoid');
+const notes = require('./notes');
+ 
+const addNoteHandler = (request, h) => {
+  const { title, tags, body } = request.payload;
+ 
+  const id = nanoid(16);
+  const createdAt = new Date().toISOString();
+  const updatedAt = createdAt;
+ 
+  const newNote = {
+   title, tags, body, id, createdAt, updatedAt,
+  };
+ 
+  notes.push(newNote);
+};
+10. Lalu, bagaimana menentukan apakah newNote sudah masuk ke dalam array notes? Mudah saja! Kita bisa memanfaatkan method filter() berdasarkan id catatan untuk mengetahuinya. Kurang lebih implementasinya seperti ini:
+const addNoteHandler = (request, h) => {
+  const { title, tags, body } = request.payload;
+ 
+  const id = nanoid(16);
+  const createdAt = new Date().toISOString();
+  const updatedAt = createdAt;
+ 
+  const newNote = {
+   title, tags, body, id, createdAt, updatedAt,
+  };
+ 
+  notes.push(newNote);
+ 
+  const isSuccess = notes.filter((note) => note.id === id).length > 0;
+};
+11. Kemudian, kita gunakan isSuccess untuk menentukan respons yang diberikan server. Jika isSuccess bernilai true, maka beri response berhasil. Jika false, maka beri response gagal.
+const addNoteHandler = (request, h) => {
+  const { title, tags, body } = request.payload;
+ 
+  const id = nanoid(16);
+  const createdAt = new Date().toISOString();
+  const updatedAt = createdAt;
+ 
+  const newNote = {
+   title, tags, body, id, createdAt, updatedAt,
+  };
+ 
+  notes.push(newNote);
+ 
+  const isSuccess = notes.filter((note) => note.id === id).length > 0;
+ 
+  if (isSuccess) {
+    const response = h.response({
+      status: 'success',
+      message: 'Catatan berhasil ditambahkan',
+      data: {
+        noteId: id,
+      },
+    });
+    response.code(201);
+    return response;
+  }
+ 
+  const response = h.response({
+    status: 'fail',
+    message: 'Catatan gagal ditambahkan',
+  });
+  response.code(500);
+  return response;
+};
+12. Selanjutnya, mari kita gunakan fungsi handler ini pada konfigurasi route-nya. Silakan buka routes.js, lalu ganti fungsi handler menjadi seperti ini :
+{
+  method: 'POST',
+  path: '/notes',
+  handler: addNoteHandler,
+},
+13. Jangan lupa import fungsi addNoteHandler-nya pada berkas routes.js :
+const { addNoteHandler } = require('./handler');
+14. Setelah itu, mari gunakan route configuration pada server. Silakan buka berkas server.js, kemudian tambahkan kode yang diberi tanda tebal yah :
+const Hapi = require('@hapi/hapi');
+const routes = require('./routes'); //tambah ini
+ 
+const init = async () => {
+const server = Hapi.server({
+  port: 5000,
+  host: 'localhost',
+});
+ 
+server.route(routes); //tambah ini
+ 
+await server.start();
+  console.log(`Server berjalan pada ${server.info.uri}`);
+};
+ 
+init();
+15. Terakhir, simpan seluruh perubahan pada semua berkas JavaScript yang ada. Kemudian, coba kembali akses fitur tambah catatan pada aplikasi client. Apakah sekarang sudah berfungsi?
+
+* SAME ORIGIN POLICE		
+-> apakah Anda tahu bahwa tidak semua data bisa diambil dari origin yang berbeda? Contohnya data JSON yang didapatkan melalui teknik XMLHTTPRequest atau fetch. Jika website meminta sesuatu menggunakan teknik tersebut dari luar origin-nya, maka permintaan tersebut akan ditolak. Itu disebabkan oleh kebijakan same-origin. Kasus ini terjadi pada aplikasi client dan web server yang kita buat.Origin terdiri dari tiga hal: protokol, host, dan port number. Origin dari aplikasi client kita adalah : ( http://notesapp-v1.dicodingacademy.com ) Di mana protokolnya adalah http://, host-nya adalah notesapp-v1.dicodingacademy.com, dan port-nya adalah :80 (implisit).
+Selama aplikasi client mengakses data dari origin yang sama, hal itu dapat dilakukan. Namun bila ada salah satu saja yang berbeda contohnya port 8001, maka permintaan itu akan ditolak.
+Dengan begitu jelas yah, apa penyebab gagalnya aplikasi client ketika melakukan permintaan ke web server yang kita buat. Sudah jelas keduanya memiliki origin yang berbeda. Origin web server kita saat ini adalah http://localhost:5000/
+Lalu, apa solusi agar keduanya dapat berinteraksi? Tenang, untungnya ada mekanisme yang dapat membuat mereka saling berinteraksi. Mekanisme tersebut disebut Cross-origin resource sharing (CORS). Pertanyaannya, bagaimana cara menerapkannya?
+Cukup mudah! Pada web server, kita hanya perlu memberikan nilai header ‘Access-Control-Allow-Origin’ dengan nilai origin luar yang akan mengkonsumsi datanya (aplikasi client).
+1. Silakan buka berkas server.js, lalu tambahkan CORS pada konfigurasi pembuatan server seperti yang sudah Anda pelajari. 
+const server = Hapi.server({
+  port: 5000,
+  host: 'localhost',
+  routes: {
+    cors: {
+      origin: ['*'],
+    },
+  },
+});
+2. Simpan perubahan berkas server.js, pastikan server masih berjalan, dan silakan coba masukan kembali catatan menggunakan aplikasi client. Percayalah, sekarang harusnya bisa berjalan dengan baik.
+Jika setelah memasukan catatan Anda dikembalikan ke halaman utama tanpa peringatan apa pun, itu artinya Anda berhasil menambahkan catatan. Selamat yah!
+Tapi sayang sekali, walaupun berhasil tersimpan, catatan tersebut masih belum dapat kita lihat. Agar catatan dapat kita lihat, ayo kita selesaikan kriteria kedua!
+-> jika error 500 internal server, maka ubah kode di dalam file handler.js menjadi :
+const { nanoid } = require('nanoid');
+
+// Assuming 'notes' is defined or imported here
+const notes = [];
+
+const addNoteHandler = (request, h) => {
+  const { title, tags, body } = request.payload;
+
+  const id = nanoid(16);
+  const createdAt = new Date().toISOString();
+  const updatedAt = createdAt;
+
+  const newNote = {
+    title, tags, body, id, createdAt, updatedAt,
+  };
+
+  notes.push(newNote);
+
+  // You may want to send a response back to the client
+  return h.response({ status: 'success', data: newNote }).code(201);
+};
+
+module.exports = { addNoteHandler, notes };
+
+
+/*
+struktur objek notes :
+{
+  id: string,
+  title: string,
+  createdAt: string,
+  updatedAt: string,
+  tags: array of string,
+  body: string,
+}
+*/
+-> jika yang error adalah CORS nya, maka coba konfig crhome/browser/egde dengan cara :
+> di chrome buka chrome://flags/#unsafely-treat-insecure-origin-as-secure kalau di egde buka : edge://flags/#unsafely-treat-insecure-origin-as-secure
+lalu langkah pertama aktifkan allow invalid certificates for resource loaded from localhost
+dan langkah kedua aktifkan insecure origin treated as secure dan isi di kolomnya : http://localhost, http://localhost:5000, http://notesapp-v1.dicodingacademy.com
+
+
+* MENAMPILKAN CATATAN 
+1. Pertama, kita buat konfigurasi route terlebih dahulu pada berkas routes.js. Tetapkan path dengan nilai ‘/notes’ dan method dengan nilai ‘GET’. Untuk handler, kita berikan dulu fungsi kosong.
+const routes = [
+  {
+    method: 'POST',
+    path: '/notes',
+    handler: addNoteHandler,
+  },
+  {       //tambah ini sampai bawah 
+    method: 'GET',
+    path: '/notes',
+    handler: () => {},
+  },
+];
+2. Lanjut kita buat fungsi handler-nya pada berkas handler.js. Buat fungsi dengan nama getAllNotesHandler dan kembalikan data dengan nilai notes di dalamnya.
+const getAllNotesHandler = () => ({
+  status: 'success',
+  data: {
+    notes,
+  },
+});
+3. Jangan lupa untuk ekspor nilai getAllNotesHandler agar dapat digunakan di routes.js
+const getAllNotesHandler = () => ({
+  status: 'success',
+  data: {
+    notes,
+  },
+});
+ 
+module.exports = { addNoteHandler, getAllNotesHandler }; //tambah ini
+4. Kembali ke berkas routes.js. Gunakan fungsi handler tersebut pada konfigurasi route.
+{
+    method: 'GET',
+    path: '/notes',
+    handler: getAllNotesHandler,
+ },
+5. Jangan lupa untuk mengimpornya yah.
+const { addNoteHandler, getAllNotesHandler } = require('./handler');
+6. Simpan seluruh perubahan yang ada, dan coba kembali buka aplikasi client.
+7. Wah ada pesan baru. “Please try to add some note(s)”. Sepertinya ini akan berhasil, silakan coba masukan note baru.
+Voila! Akhirnya catatan yang kita masukan tampak yah. 
+8. Coba masuk ke halaman detail dengan memilih catatan tersebut. 
+Yah, eror lagi. Tentu, karena kita belum membuat route untuk mendapatkan catatan secara spesifik. Ayo kita selesaikan juga.
+9. Kembali ke berkas routes.js, kemudian tambahkan route dengan path ‘/notes/{id}’ dan method ‘GET’. Untuk handler isi dengan fungsi kosong dulu.
+{
+    method: 'GET',
+    path: '/notes/{id}',
+    handler: () => {},
+  },
+];
+10. Lanjut kita buat fungsi handler-nya. Buka berkas handler.js, lalu buat fungsi dengan nama getNoteByIdHandler. 
+const getNoteByIdHandler = (request, h) => {
+  
+};
+Di dalam fungsi ini kita harus mengembalikan objek catatan secara spesifik berdasarkan id yang digunakan oleh path parameter.
+11. Pertama, kita dapatkan dulu nilai id dari request.params.
+const getNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+};
+12. Setelah mendapatkan nilai id, dapatkan objek note dengan id tersebut dari objek array notes. Manfaatkan method array filter() untuk mendapatkan objeknya.
+const getNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+ 
+  const note = notes.filter((n) => n.id === id)[0];
+};
+13. Kita kembalikan fungsi handler dengan data beserta objek note di dalamnya. Namun sebelum itu, pastikan dulu objek note tidak bernilai undefined. Bila undefined, kembalikan dengan respons gagal.
+const getNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+ 
+  const note = notes.filter((n) => n.id === id)[0];
+ 
+if (note !== undefined) {
+    return {
+      status: 'success',
+      data: {
+        note,
+      },
+    };
+  }
+ 
+  const response = h.response({
+    status: 'fail',
+    message: 'Catatan tidak ditemukan',
+  });
+  response.code(404);
+  return response;
+};
+14. Fungsi handler selesai! Jangan lupa ekspor fungsinya.
+module.exports = { addNoteHandler, getAllNotesHandler, getNoteByIdHandler };
+15. Lanjut gunakan fungsi tersebut pada konfigurasi route di berkas routes.js.
+{
+  method: 'GET',
+  path: '/notes/{id}',
+  handler: getNoteByIdHandler,
+},
+16. Jangan lupa untuk impor juga yah.
+const { addNoteHandler, getAllNotesHandler, getNoteByIdHandler } = require('./handler');
+17. Simpan seluruh perubahan yang ada dan coba kembali aplikasi client-nya.
+Dalam mencobanya, mungkin Anda perlu menambahkan kembali notes karena kita hanya menyimpannya di array. Di mana data tersebut akan hilang setiap kali server dijalankan ulang oleh nodemon.
+Well done! Sekarang aplikasi sudah bisa menampilkan detail catatan. Di mana di halaman ini ada tombol “Edit Note”. Bila menekan tombol tersebut, kita akan diarahkan ke halaman edit note. Tapi halaman tersebut masih belum berfungsi. Nah, pada materi selanjutnya kita akan buat halaman tersebut berfungsi yah.
+
+* MENGUBAH CATATAN 
+1. Seperti biasa, kita awali dengan membuat konfigurasi route-nya dulu. Silakan buka kembali berkas routes.js, lalu buat route dengan path ‘/notes/{id}’, method ‘PUT’,  dan handler dengan nilai fungsi kosong
+{
+  method: 'PUT',
+  path: '/notes/{id}',
+  handler: () => {},
+},
+2. Yuk kita buat fungsi handler-nya pada berkas handler.js. Kita beri nama fungsi tersebut dengan editNoteByIdHandler ya.
+const editNoteByIdHandler = (request, h) => {
+  
+};
+3. Catatan yang diubah akan diterapkan sesuai dengan id yang digunakan pada route parameter. Jadi, kita perlu mendapatkan nilai id-nya terlebih dahulu.
+const editNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+};
+4. Setelah itu, kita dapatkan data notes terbaru yang dikirimkan oleh client melalui body request.
+const editNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+ 
+  const { title, tags, body } = request.payload;
+};
+5. Selain itu, tentu kita perlu perbarui juga nilai dari properti updatedAt. Jadi, dapatkan nilai terbaru dengan menggunakan new Date().toISOString().
+const editNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+ 
+  const { title, tags, body } = request.payload;
+  const updatedAt = new Date().toISOString();
+};
+Great! Data terbaru sudah siap, saatnya mengubah catatan lama dengan data terbaru. Kita akan mengubahnya dengan memanfaatkan indexing array, silakan gunakan teknik lain bila menurut Anda lebih baik yah.
+6. Pertama, dapatkan dulu index array pada objek catatan sesuai id yang ditentukan. Untuk melakukannya, gunakanlah method array findIndex().
+const editNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+ 
+  const { title, tags, body } = request.payload;
+  const updatedAt = new Date().toISOString();
+ 
+  const index = notes.findIndex((note) => note.id === id);
+};
+7. Bila note dengan id yang dicari ditemukan, maka index akan bernilai array index dari objek catatan yang dicari. Namun bila tidak ditemukan, maka index bernilai -1. Jadi, kita bisa menentukan gagal atau tidaknya permintaan dari nilai index menggunakan if else.
+const editNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+ 
+  const { title, tags, body } = request.payload;
+  const updatedAt = new Date().toISOString();
+ 
+  const index = notes.findIndex((note) => note.id === id);
+ 
+  if (index !== -1) {
+    notes[index] = {
+      ...notes[index],
+      title,
+      tags,
+      body,
+      updatedAt,
+    };
+ 
+    const response = h.response({
+      status: 'success',
+      message: 'Catatan berhasil diperbarui',
+    });
+    response.code(200);
+    return response;
+  }
+ 
+  const response = h.response({
+    status: 'fail',
+    message: 'Gagal memperbarui catatan. Id tidak ditemukan',
+  });
+  response.code(404);
+  return response;
+};
+8. Fungsi handler selesai! Jangan lupa export fungsinya.
+module.exports = {
+  addNoteHandler,
+  getAllNotesHandler,
+  getNoteByIdHandler,
+  editNoteByIdHandler,
+};
+9. Sekarang kita gunakan fungsinya pada route yah. 
+{
+  method: 'PUT',
+  path: '/notes/{id}',
+  handler: editNoteByIdHandler,
+},
+10. Jangan lupa impor fungsinya.
+const {
+  addNoteHandler,
+  getAllNotesHandler,
+  getNoteByIdHandler,
+  editNoteByIdHandler,
+} = require('./handler');
+11. Simpan seluruh perubahan, kemudian silakan coba kembali aplikasi catatannya. Seharusnya fungsi edit sudah bisa digunakan yah. 
+
+* MENGHAPUS CATATAN
+1. Buka kembali berkas routes.js. Tambahkan konfigurasi route dengan nilai path ‘/notes/{id}’, method ‘DELETE’, dan handler dengan fungsi kosong seperti ini:
+{
+  method: 'DELETE',
+  path: '/notes/{id}',
+  handler: () => {},
+},
+2. Selanjutnya, buat fungsi handler baru dengan nama deleteNoteByIdHandler pada handler.js. 
+const deleteNoteByIdHandler = (request, h) => {
+ 
+};
+Setelah itu, saatnya kita menuliskan logikanya. Sama seperti mengubah catatan. Kita akan memanfaatkan index untuk menghapus catatan.
+3. Pertama, kita dapatkan dulu nilai id yang dikirim melalui path parameters.
+const deleteNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+};
+4. Selanjutnya, dapatkan index dari objek catatan sesuai dengan id yang didapat.
+const deleteNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+ 
+  const index = notes.findIndex((note) => note.id === id);
+};
+Lakukan pengecekan terhadap nilai index, pastikan nilainya tidak -1 bila hendak menghapus catatan. 
+5. Nah, untuk menghapus data pada array berdasarkan index, gunakan method array splice().
+const deleteNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+ 
+  const index = notes.findIndex((note) => note.id === id);
+ 
+ if (index !== -1) {
+    notes.splice(index, 1);
+    const response = h.response({
+      status: 'success',
+      message: 'Catatan berhasil dihapus',
+    });
+    response.code(200);
+    return response;
+  }
+};
+Bila index bernilai -1, maka kembalikan handler dengan respons gagal.
+const deleteNoteByIdHandler = (request, h) => {
+  const { id } = request.params;
+ 
+  const index = notes.findIndex((note) => note.id === id);
+ 
+  if (index !== -1) {
+    notes.splice(index, 1);
+    const response = h.response({
+      status: 'success',
+      message: 'Catatan berhasil dihapus',
+    });
+    response.code(200);
+    return response;
+  }
+ 
+const response = h.response({
+    status: 'fail',
+    message: 'Catatan gagal dihapus. Id tidak ditemukan',
+  });
+  response.code(404);
+  return response;
+};
+6. Jangan lupa untuk ekspor fungsi handler yah.
+module.exports = {
+  addNoteHandler,
+  getAllNotesHandler,
+  getNoteByIdHandler,
+  editNoteByIdHandler,
+  deleteNoteByIdHandler, //tambah ini
+};
+7. Saatnya kita gunakan fungsi handler pada konfigurasi route. Buka berkas routes.js, lalu tambahkan fungsi handler-nya.
+{
+  method: 'DELETE',
+  path: '/notes/{id}',
+  handler: deleteNoteByIdHandler,
+},
+8. Jangan lupa untuk mengimpor fungsinya.
+const {
+  addNoteHandler,
+  getAllNotesHandler,
+  getNoteByIdHandler,
+  editNoteByIdHandler,
+  deleteNoteByIdHandler,
+} = require('./handler');
+9. Simpan seluruh perubahan. Setelah itu, silakan coba lagi aplikasi client-nya. Jika semua berhasil diterapkan, seharusnya fitur hapus catatan sudah berfungsi dengan baik yah!
+
+WELL DONE, AKHIRNYA APLIKASI NYA UDAH BERFUNGSI DENGAN BAIK! TERIMA KASIH SUDAH BERJUANG SEJAUH INI INTAN, ERROR NGGA BIKIN KAMU NYERAH YANG BIKIN NYERAH ITU RASA MALAS!
+TERIMAKASIH INTAN, TETAP SEMANGAT NGODING YAAA-!!!
+
+fyi :
+* aplikasi ini sudah aku buat API nya, dan kamu tau? api bisa diekspor (collection and environment) untuk memudahkan pengerjaan project. ya, tentu saja.
+* API yang sudah aku buat ini sudah aku ekspor ke dalam folder aplikasinya, dengan nama (note-api-test-postman_environment.json dan note-api-test-postman_collection.json)
+* baik, mulai pemasangan package newman (untuk detail bisa cari di internet atau baca dokumentasinya) secara global untuk menjalankan fungsi API yang sudah diekspor :
+1. terminal CMD : npm install newman --g
+2. Setelah berhasil terpasang perintah newman harusnya tersedia pada Terminal, Powershell, atau CMD 
+3. Selanjutnya kita akan menjalankan berkas Postman Collection dengan menggunakan Newman. Bukalah proyek notes-app-back-end dan siapkan bilah terminal
+4. nyalakan server : npm run start-dev
+5. buka terminal di folder yg sama tanpa mematikan server : newman run note-api-test-postman_collection.json --environment note-api-test-postman_environment.json
+
+
+
+
